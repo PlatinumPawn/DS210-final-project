@@ -1,0 +1,15 @@
+// if I want to build a warehouse that can service all the cities
+// what is the best place to build the city 
+// what gives me the average shortest distance to al lthe other cities
+// for every node do BFS 
+// get BFS distances to all other nodes, add them up, then divide them by n-1 
+// that is the closeness centrality 
+
+implement BFS
+use it to calculate the closeness centrality
+
+use DFS to do strongly connected components 
+
+make sure the node IDs are sequential 
+
+    // what's the average length, stnadard deviation??
