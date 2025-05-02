@@ -1,11 +1,22 @@
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{self, BufRead};
+// make a graph struct that holds an adj list and the number of nodes 
+
+
+pub struct Graph {
+    pub graph: Vec<Vec<u32>>,
+    pub nodes: usize,
+    pub old_to_new: HashMap<u32, usize>,
+    pub new_to_old: HashMap<usize, u32>,
+    pub edges: Vec<(usize, usize)>,
+}
+
 
 // prepare and preprocess graph to be used
 // currently there are gaps in the graph, so we have to remap it
 
-pub fn prep(path: &str) -> Result<(Vec<Vec<u32>>, HashMap<u32, usize>, Vec<(usize, usize)>), io::Error> {
+pub fn prep(path: &str) -> Result<Graph, io::Error> {//Result<(Vec<Vec<u32>>, HashMap<u32, usize>, Vec<(usize, usize)>), io::Error> {
     let file = File::open(path)?;
     let reader = io::BufReader::new(file);
     let lines = reader.lines();
@@ -13,7 +24,7 @@ pub fn prep(path: &str) -> Result<(Vec<Vec<u32>>, HashMap<u32, usize>, Vec<(usiz
     // remapping my graph because it has a few gaps 
     let mut nodes = 0; // counting nodes (spoiler, they are the same!! that's good)
     let mut old_to_new = HashMap::new(); // old to new id, new is going to be the counter
-    let mut new_to_old: HashMap<u32, u32> = HashMap::new(); 
+    let mut new_to_old: HashMap<usize, u32> = HashMap::new(); 
     let mut graph: Vec<Vec<u32>> = vec![Vec::new()]; // our adj list that is going to be our new vec<vec<u32>> that has our graph
     let mut counter = 0; // counter that becomes our values each time
     let mut edges: Vec<(usize, usize)> = Vec::new(); 
@@ -61,5 +72,16 @@ pub fn prep(path: &str) -> Result<(Vec<Vec<u32>>, HashMap<u32, usize>, Vec<(usiz
         graph[new_from].push(new_to); 
     }
     graph.resize(counter, Vec::new());
-    Ok((graph, old_to_new, edges))
+    //Ok((graph, old_to_new, edges))
+
+    Ok(Graph {
+        graph: graph,
+        nodes: nodes,
+        old_to_new,
+        new_to_old,
+        edges,
+    })
 }
+
+
+

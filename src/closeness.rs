@@ -93,6 +93,33 @@ pub fn writer(path: &str, content: Vec<(u32, f64)>) -> io::Result<()>{
 }
 
 
+
+#[cfg(test)]
+mod tests {
+    use rayon::Yield;
+
+    use super::*; 
+    #[test]
+    fn tester() {
+        let graph: Vec<Vec<u32>> = vec![
+        vec![1, 2],       // Node 0 connected to nodes 1 and 2
+        vec![0, 2, 3],    // Node 1 connected to nodes 0, 2, and 3
+        vec![0, 1, 3, 4], // Node 2 connected to nodes 0, 1, 3, and 4
+        vec![1, 2, 4],    // Node 3 connected to nodes 1, 2, and 4
+        vec![2, 3],       // Node 4 connected to nodes 2 and 3
+    ];
+
+    let storage = parallel(graph).unwrap(); 
+    assert_eq!(storage.len(), 5); 
+    let store = storage.iter().map(|(x, y)| y).sum();
+
+    // to be clear, my closeness centrality is sort of different from the normal calculation 
+    // I am finding the average distance to all other nodes, and as such, the smallest distance 
+    // is what I would consider the most centrally located node, or the one with the highest closeness centrality 
+    assert_eq!(6.5, store);
+    }
+}
+
 // get BFS distances to all other nodes, add them up, then divide them by n-1 
 // that is the closeness centrality 
 

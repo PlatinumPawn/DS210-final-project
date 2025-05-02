@@ -8,6 +8,7 @@ use std::fs::File;
 use std::io::{self, BufRead};
 
 
+
 pub fn reader(path: &str) -> io::Result<(Vec<(u32, f64)>, Vec<(u32, f64)>)> {
     // want to return a tuple with two vectors, one with all of the values, and one with just the node value pairs
     // that have the lowest closeness centrality, because how I calculated it, that means they are the most 
@@ -41,6 +42,11 @@ pub fn reader(path: &str) -> io::Result<(Vec<(u32, f64)>, Vec<(u32, f64)>)> {
         }
         // finding the lowest value 
     }
+
+    // so we assign our iterator methods to the closures 
+    // we take our most output, which is just the same as storage currently
+    // and we iterate through it, filter it by the 7 value, and must equal least 
+    // then collect it back into a vector 
     let closest: Vec<(u32, f64)> = most
     .into_iter()
     .filter(|(x, y)| *y == least)
@@ -48,3 +54,8 @@ pub fn reader(path: &str) -> io::Result<(Vec<(u32, f64)>, Vec<(u32, f64)>)> {
     // filtering by the found lowest value 
     Ok((storage, closest))
 }
+
+
+// make a histogram and then see 
+// maybe do shortest path 
+// shortest path between two points 
