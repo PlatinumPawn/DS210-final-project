@@ -41,7 +41,7 @@ pub fn closeness(graph: &Vec<Vec<u32>>, start: usize) -> Result<f64, Box<dyn std
             }
         }
     }
-    let done = (total_distance as f64) / (graph.len() as f64 -1.0);
+    let done = (total_distance as f64) / (graph.len() as f64 -1.0); // take the struct and not the vec
     Ok(done)
 }
 
