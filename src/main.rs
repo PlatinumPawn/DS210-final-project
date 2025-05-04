@@ -52,7 +52,7 @@ fn main() {
     }
     meannn = meannn / storage.0.len() as f64; 
     println!("{}", meannn); 
-    let draw = histogram::histo(storage.0, usable); 
+    //let draw = histogram::histo(storage.0, usable); 
 
 
 
