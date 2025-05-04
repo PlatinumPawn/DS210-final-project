@@ -1,3 +1,7 @@
+// The objective is to compute the closeness centrality of each node to each other node, after talking with a 
+// prof we decided to compute closeness slightly differently, which can be seen below. Then the output of the clo
+//seness centrality of each node of the graph is written to a file, to avoid rerunning a multi-hour function. 
+
 use std::collections::VecDeque; 
 use rayon::prelude::*;
 use std::io::{BufWriter, BufReader}; 
@@ -6,8 +10,11 @@ use std::io::Write;
 use std::io; 
 // standard BFS from lecture 
 pub fn bfs(graph: &Vec<Vec<u32>>, start: u32) -> Vec<Option<u32>> {
+    // make the vector that will be output
     let mut dist = vec![None; graph.len()];
+    // init vecdeque for tracker
     let mut queue = VecDeque::new();
+    // dist at value 
     dist[start as usize] = Some(0);
     queue.push_back(start);
     while let Some(node) = queue.pop_front() {

@@ -9,8 +9,6 @@ pub struct Graph {
     pub new_to_old: HashMap<usize, u32>,
     pub edges: Vec<(usize, usize)>,
 }
-
-
 // prepare and preprocess graph to be used
 // currently there are gaps in the graph, so we have to remap it
 

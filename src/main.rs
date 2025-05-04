@@ -1,14 +1,7 @@
-mod bfs; 
-mod another; 
-mod tester; 
-mod diameter; 
 mod reader; 
-mod largest_component;
 mod closeness; 
 mod closeness_centrality_translator;
 mod histogram;
-mod stronglyconnected;
-mod visualization; 
 use std::clone::Clone; 
 
 use crate::reader::Graph; 
@@ -63,7 +56,7 @@ fn main() {
 
 
 
-   //let store = stronglyconnected::find_strongly_connected_components(&graph); 
+    //let store = stronglyconnected::find_strongly_connected_components(&graph); 
 
 }
 
