@@ -112,6 +112,9 @@ pub fn writer(path: &str, content: Vec<(u32, f64)>) -> io::Result<()>{
     Ok(())
 }
 
+
+
+// make sure that our graph is calculating correctly 
 #[cfg(test)]
 mod tests {
     use super::*; 
@@ -130,10 +133,12 @@ mod tests {
     let storage = parallel(graph).unwrap(); 
     assert_eq!(storage.len(), 5); 
     let store = storage.iter().map(|(x, y)| y).sum();
-
+    assert_eq!(store, 6.5); 
     // to be clear, my closeness centrality is sort of different from the normal calculation 
     // I am finding the average distance to all other nodes, and as such, the smallest distance 
     // is what I would consider the most centrally located node, or the one with the highest closeness centrality 
+    // I change this later and find both closeness centrality (as it is usually defined) and my version 
+    // which is basically avg path lenght, they are also inverse of each other 
     assert_eq!(6.5, store);
     }
 }

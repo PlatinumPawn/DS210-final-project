@@ -1,37 +1,29 @@
-// this is easier than running the whole function (which takes >4 hours, probably 6) but can still extrapolate the results and 
-// be parseable!
-
-// then I'm going to match the ID's with my hashmap to see the original nodes that have the lowest closeness 
-// centrality! (for my purposes that means they're the most connected)
-use std::collections::HashMap; 
+// The objective of this file is to parse my file that I wrote to store the values of my closeness calculations
+// and transform it slightly. Instead of taking 4-6 hours each time I want to run, I stored it in a file
+// which this reads. Because I was basically calculating average path length, but I want closeness centrality 
+// I output both. The direct read is the second vector, which is the average path length of each node, in teh form 
+// of node value pair. And the first vector I inverse the value, making it the standard closeness centrality cal-
+// culation. 
 use std::fs::File;
 use std::io::{self, BufRead};
-
-
-
+// returning an io Result with two vectors, one for closeness centrality node, value pairs and the other 
+// for avg path length pairs. 
+// takes a path to the file that my closeness::writer wrote to only run the long calculation once
+// making a reader, two vectors then iterating through the lines and assigning the node value pairs
 pub fn reader(path: &str) -> io::Result<(Vec<(u32, f64)>, Vec<(u32, f64)>)> {
-    // want to return a tuple with two vectors, one with all of the values, and one with just the node value pairs
-    // that have the lowest closeness centrality, because how I calculated it, that means they are the most 
-    // connected 
-    // I could have just organized my writer to write in inverse order, so that smallest first 
-    // and then I could have just taken the first value and compared it to the rest and seen if that works
-    // but this isn't that much extra work 
     let file = File::open(path)?;
     let reader = io::BufReader::new(file); 
     let lines = reader.lines(); 
-    // making a value larger than anything in my dataset for comparison 
-    let mut least: f64 = 1.0e10; 
-    // for storing everything 
-    let mut storage: Vec<(u32, f64)> = Vec::new(); 
-    // for storing the most important values, which are the smallest, and therefore most connected 
-    // because their average distance to other nodes is smallest 
-    // I will first push everything onto it, then filter it
-    let mut most: Vec<(u32, f64)> = Vec::new(); 
+    let mut avg_path_length: Vec<(u32, f64)> = Vec::new(); 
+    let mut closeness_centrality: Vec<(u32, f64)> = Vec::new();
+    // inverse of what we previously calculated is the standard closeness centrality defintion  
     for line in lines {
         // standard line reading 
         let line = line.expect("Something went wrong with reading the line!!"); 
+        // splitting the line by space, so that node and value are seperate parts of the collected vector
         let parts: Vec<&str> = line.split_whitespace().collect();
-        // very similar to my first reader function, same ish format, just different in that one is an f64
+        // very similar to my first reader function, just different in that one is an f64
+        // matching and parsing with our u32 assignment 
         let node = match parts[0].parse::<u32>() {
             Ok(point) => point, 
             Err(e) => continue, 
@@ -40,27 +32,36 @@ pub fn reader(path: &str) -> io::Result<(Vec<(u32, f64)>, Vec<(u32, f64)>)> {
             Ok(float) => float, 
             Err(error) => continue,
         }; 
-        storage.push((node, value)); 
-        most.push((node, value)); 
-        // finding the lowest value to compare to
-        if value < least {
-            least = value; 
-        }
-        
+
+
+        // pushing our node value pairs
+        avg_path_length.push((node, value)); 
+
+        // closeness centrality is the inverse of what I calculated, so I need to inverse the value to get 
+        // closeness centrality as it is normally defined 
+        closeness_centrality.push((node, 1.0 / value)); 
     }
-    // filtering by the found lowest value 
-    // so we assign our iterator methods to the closures 
-    // we take our most output, which is just the same as storage currently
-    // and we iterate through it, filter it by the y value, and must equal least 
-    // then collect it back into a vector 
-    let closest: Vec<(u32, f64)> = most
-    .into_iter()
-    .filter(|(x, y)| *y == least)
-    .collect(); 
-    Ok((storage, closest))
+    Ok((closeness_centrality, avg_path_length))
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*; 
 
-// make a histogram and then see 
-// maybe do shortest path 
-// shortest path between two points 
+    #[test]
+    fn tester() {
+
+        // reading in my two vectors, which are closeness_centrality calculations and the inverse, which is what
+        // I initially calculated 
+        let (closeness, avg)  = reader("closeness_centrality_storage").expect("Something went wrong");
+        for ((n1, cc), (n2, apl)) in closeness.iter().zip(avg) {
+            // checking to see that the inverse of 1 equals the other 
+            let inverse: f64 = 1.0 / apl; 
+            // allowing for margin of error when dealing with f64
+            let margin = 1e-6; 
+            let combine = (cc - inverse).abs(); 
+            // making sure that the inverse of one is basically equal to the other, within a margin of error
+            assert!(combine < margin);
+        }
+    }
+}

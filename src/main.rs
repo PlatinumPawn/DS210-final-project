@@ -1,16 +1,23 @@
+// this is my main function, where I run my initial graph reader, my closeness centrality graph reader 
+// and call my function that creates a histogram. 
+// These is also a function called parallel_closeness_runner in this, where I stored the code that I ran in main
+// I have commented out the call, but if ran it would run for greater than 4 hours and created my 
+// closeness_centrality_store with each individual value
+
 mod reader; 
 mod closeness; 
 mod closeness_centrality_translator;
-mod histogram;
+mod visualization; 
+mod shortest_path; 
 use std::clone::Clone; 
 
 use crate::reader::Graph; 
-
-// histo
-// SCC
 fn parallel_closeness_runner(graph: Vec<Vec<u32>>) -> Vec<(u32, f64)> {
-    // this is the code that I ran to intiially calculate the closeness centrality (or average distance)
+    // this is the code that I ran to intiially calculate the inverse closeness centrality 
+    // (I will find the normally defined closeness by taking the inverse later)
     // took more than four hours 
+    // it is commented out of main, so that everything else can run 
+    println!("Calculating the closeness centrality of the input graph!"); 
     let closest = closeness::parallel(graph).unwrap(); 
     // clone because the significant portion calculation is done, now just printing
     let another = closest.clone(); 
@@ -22,41 +29,28 @@ fn parallel_closeness_runner(graph: Vec<Vec<u32>>) -> Vec<(u32, f64)> {
    }
    returner
 }
+
 fn main() {
     let graph = reader::prep("roadNet-CA.txt").unwrap();
-    //tester::empty(graph); 
-    //println!("{}", diameter); 
-    println!("{:?}", graph.graph[0]); 
-    let path = "closeness_centrality_storage";
+
+    let path: &str = "closeness_centrality_storage";
+    //parallel_closeness_runner(graph.graph); 
+    // this would calculate the average closeness and run it 
+
 
     // call the reader, store it 
     let storage = closeness_centrality_translator::reader(path).unwrap(); 
     // grab the only usable 
-    let usable = storage.1; 
-    let mut checker: f64 = 0.0; 
-    for (node, value) in &usable {
-        if *value != 0.0000005088527659964228 {
-            println!("This doesn't work"); 
-            break
-        }
-        println!("The node is {node} and the value is {value}"); 
-        checker += value; 
-    }
-    checker = checker / 4478.0; 
-    println!("This is the checker {}", checker); 
-    println!("The number of nodes with an equal closeness centrality and therefore equal connected-ness is {}", usable.len()); 
-    let median = storage.0[storage.0.len() / 2];
-    let mut meannn: f64 = 0.0; 
-    for i in storage.0.clone() {
-        meannn += i.1; 
-    }
-    meannn = meannn / storage.0.len() as f64; 
-    println!("{}", meannn); 
-    //let draw = histogram::histo(storage.0, usable); 
+    let length = storage.clone().0.len(); 
+    let closeness_centrality = storage.clone().0; 
+    let avg_path_length = storage.1.clone(); 
 
+    // our writer sorts by greatest to least, so the least value is going to be at the end of the graph
+    let smallest = storage.clone().1[length - 1].1;
+    visualization::plotter(avg_path_length, &smallest, &1000, "visualization_submit.png");
 
-
-    //let store = stronglyconnected::find_strongly_connected_components(&graph); 
+    let nodes = graph.graph.len(); 
+    println!("The node count of this graph is {}", nodes); 
 
 }
 

@@ -1,4 +1,6 @@
 use plotters::prelude::*;
+
+// I want to plot my calculated average path distance / modified closeness centrality value 
 pub fn plotter(cc_output: Vec<(u32, f64)>, cc_min: &f64, bin_count: &usize, path: &str) -> Result<(), Box<dyn std::error::Error>> {
     // make a drawing area 
     // fill it with white 
@@ -14,7 +16,7 @@ pub fn plotter(cc_output: Vec<(u32, f64)>, cc_min: &f64, bin_count: &usize, path
     // bin count (I will be using 1000 )
     let bin_count = *bin_count; 
     // minimum is small 
-    let bin_width = (minimum - maximum) / bin_count as f64; 
+    let bin_width = (maximum - minimum) / bin_count as f64; 
 
     let size = cc_output.len(); 
 
@@ -28,8 +30,11 @@ pub fn plotter(cc_output: Vec<(u32, f64)>, cc_min: &f64, bin_count: &usize, path
     }
     let mut bins = vec![0u32; bin_count]; 
 
-    for node in nodes {
-        
+    for value in values {
+        let bin_index = ((value-minimum) / bin_width).floor() as usize; 
+        if bin_index < bin_count {
+            bins[bin_index] += 1;
+        }
     }
 
     let mut chart = ChartBuilder::on(&root)
@@ -37,7 +42,8 @@ pub fn plotter(cc_output: Vec<(u32, f64)>, cc_min: &f64, bin_count: &usize, path
         .y_label_area_size(40)
         .margin(5)
         .caption("Histogram Test", ("sans-serif", 50.0))
-        .build_cartesian_2d((minimum..maximum).into_segmented(), 0u32..1000u32)?;
+        .build_cartesian_2d(0..bin_count, 0u32..*bins.iter().max().unwrap_or(&1))?;
+
 
     chart
         .configure_mesh()
@@ -51,13 +57,13 @@ pub fn plotter(cc_output: Vec<(u32, f64)>, cc_min: &f64, bin_count: &usize, path
 
     chart.draw_series(
         Histogram::vertical(&chart)
-            .style(RED.mix(0.5).filled())
-            .data(values.iter().map(|&v| (v, 1))),
-    )?;
+    .style(RED.mix(0.5).filled())
+    .data(bins.iter().enumerate().map(|(i, &count)| (i, count)))); 
 
-    // To avoid the IO failure being ignored silently, we manually call the present function
-    root.present().expect("Unable to write result to file, please make sure 'plotters-doc-data' dir exists under current dir");
-    println!("Result has been saved to {}", path);
+            
+
+    root.present().expect("Can't write the data, something went wrong!");
+    println!("Wrote to {}", path);
     
     
     Ok(())

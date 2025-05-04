@@ -1,7 +1,12 @@
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{self, BufRead};
-// make a graph struct that holds an adj list, node size, hashmaps themselves, and the edges list 
+// The objective of this file is to read in the data graph and make it usable to give to our other functions 
+// to process (run closeness centrality on it) and visualize it 
+// we read in the file, split it by the from and the to nodes, append those to our hashmaps 
+// then resize the vector and add it to our adj list!
+
+
 pub struct Graph {
     pub graph: Vec<Vec<u32>>,
     pub nodes: usize,
@@ -37,30 +42,23 @@ pub fn prep(path: &str) -> Result<Graph, io::Error> {//Result<(Vec<Vec<u32>>, Ha
         if parts.len() < 2 {
             continue;
         }
-        // assign from and to nodes and match them, 
-        // this part especially was helpful from chat, to parse them and error handle them 
-        let from = match parts[0].parse::<u32>() {
-            Ok(val) => val,
-            Err(_) => continue,
-        };
-        let to = match parts[1].parse::<u32>() {
-            Ok(val) => val,
-            Err(_) => continue,
-        };
+        // assign from and to nodes and unwrap it with an expect that will throw an error if something happens
+        let from = parts[0].parse::<u32>().expect("Somethign went wrong in the read"); 
+        let to = parts[1].parse::<u32>().expect("Something went wrong!");
 
         // check if our hashmap contains from or to
         // if not, insert the hashmap with our counter
         // the counter will become the remapped nodes for each for and to item
         if !old_to_new.contains_key(&from) { 
             old_to_new.insert(from, counter); 
+            new_to_old.insert(counter, from); 
             counter += 1; 
-            nodes += 1; 
         }
 
         if !old_to_new.contains_key(&to) {
             old_to_new.insert(to, counter); 
+            new_to_old.insert(counter, to); 
             counter += 1; 
-            nodes += 1; 
         }
 
         // reassign the new from and the new to 
@@ -80,8 +78,6 @@ pub fn prep(path: &str) -> Result<Graph, io::Error> {//Result<(Vec<Vec<u32>>, Ha
         // push our new values onto the graph 
         graph[new_from].push(new_to); 
     }
-    graph.resize(counter, Vec::new());
-
     // return our graph with all our newly assigned values!
     Ok(Graph {
         graph: graph,
