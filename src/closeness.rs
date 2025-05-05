@@ -16,16 +16,24 @@ pub fn bfs(graph: &Vec<Vec<u32>>, start: u32) -> Vec<Option<u32>> {
     let mut queue = VecDeque::new();
     // dist at value 
     dist[start as usize] = Some(0);
+    // pushback the start of the queue
     queue.push_back(start);
+    // while matching the some statement, we pop off the front of the queue
     while let Some(node) = queue.pop_front() {
+        // make our current node the dist[node] and unwrap so it's usable to reference
         let current_dist = dist[node as usize].unwrap();
+        // iterate through the neighbors of the node
         for &neighbor in &graph[node as usize] {
+            // if we haven't initialized it yet
             if dist[neighbor as usize].is_none() {
+                // initialize it as as neightbor
                 dist[neighbor as usize] = Some(current_dist + 1);
+                // pushback
                 queue.push_back(neighbor);
             }
         }
     }
+    // return the vector with the list of distances 
     dist
 }
 
@@ -52,24 +60,6 @@ pub fn closeness(graph: &Vec<Vec<u32>>, start: usize) -> Result<f64, Box<dyn std
     // compute the average distance that we got, from all other nodes
     let done = (total_distance as f64) / (graph.len() as f64 -1.0); // take the struct and not the vec
     Ok(done)
-}
-
-pub fn many(graph: Vec<Vec<u32>>) -> Result<Vec<(u32, f64)>, Box<dyn std::error::Error>> {
-    let mut storage: Vec<(u32, f64)> = Vec::new(); 
-    let length = graph.len(); 
-    println!("Length of graph is {}", length);
-    for iter in 0..length {
-        if iter % 100 == 0 {
-            println!("Working on node {}", iter);
-        }
-        let current_closeness = closeness(&graph, iter); 
-        storage.push((iter as u32, current_closeness.unwrap()));
-    }
-
-    storage
-    .sort_by(|x,y| x.1.partial_cmp(&y.1).unwrap());
-
-    Ok(storage)
 }
 
 // help of chatgpt, I gave it my original code because I was struggling to paralleize it 
@@ -111,8 +101,6 @@ pub fn writer(path: &str, content: Vec<(u32, f64)>) -> io::Result<()>{
     // return an io result with nothing in it, because we write the file instead
     Ok(())
 }
-
-
 
 // make sure that our graph is calculating correctly 
 #[cfg(test)]

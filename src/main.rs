@@ -37,7 +37,6 @@ fn main() {
     //parallel_closeness_runner(graph.graph); 
     // this would calculate the average closeness and run it 
 
-
     // call the reader, store it 
     let storage = closeness_centrality_translator::reader(path).unwrap(); 
     // grab the only usable 
@@ -46,11 +45,20 @@ fn main() {
     let avg_path_length = storage.1.clone(); 
 
     // our writer sorts by greatest to least, so the least value is going to be at the end of the graph
-    let smallest = storage.clone().1[length - 1].1;
-    visualization::plotter(avg_path_length, &smallest, &1000, "visualization_submit.png");
+    let smallest_apl = storage.clone().1[length - 1].1;
+    let smallest_cc: f64 = storage.clone().0[length -1].1; 
+
+    // making our visualization for avg path length, as I find it more compelling and interesting to visualize
+    visualization::plotter(avg_path_length, &smallest_apl, &1000, "visualization_apl.png");
 
     let nodes = graph.graph.len(); 
     println!("The node count of this graph is {}", nodes); 
+
+    let start = 0; 
+    let end = (graph.graph.len() -1) as u32; 
+
+    let shortest_total = shortest_path::shortest_path(&graph.graph, start, end).unwrap(); 
+    println!("This is the shortest path between {} and {}, which is {}", &start, &end, &shortest_total); 
 
 }
 

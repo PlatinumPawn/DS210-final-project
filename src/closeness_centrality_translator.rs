@@ -24,19 +24,10 @@ pub fn reader(path: &str) -> io::Result<(Vec<(u32, f64)>, Vec<(u32, f64)>)> {
         let parts: Vec<&str> = line.split_whitespace().collect();
         // very similar to my first reader function, just different in that one is an f64
         // matching and parsing with our u32 assignment 
-        let node = match parts[0].parse::<u32>() {
-            Ok(point) => point, 
-            Err(e) => continue, 
-        };
-        let value = match parts[1].parse::<f64>() {
-            Ok(float) => float, 
-            Err(error) => continue,
-        }; 
-
-
+        let node = parts[0].parse::<u32>().expect("Something went wrong!");
+        let value = parts[1].parse::<f64>().expect("Something went wrong"); 
         // pushing our node value pairs
         avg_path_length.push((node, value)); 
-
         // closeness centrality is the inverse of what I calculated, so I need to inverse the value to get 
         // closeness centrality as it is normally defined 
         closeness_centrality.push((node, 1.0 / value)); 

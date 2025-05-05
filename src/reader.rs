@@ -6,13 +6,11 @@ use std::io::{self, BufRead};
 // we read in the file, split it by the from and the to nodes, append those to our hashmaps 
 // then resize the vector and add it to our adj list!
 
-
 pub struct Graph {
     pub graph: Vec<Vec<u32>>,
     pub nodes: usize,
     pub old_to_new: HashMap<u32, usize>,
     pub new_to_old: HashMap<usize, u32>,
-    pub edges: Vec<(usize, usize)>,
 }
 // prepare and preprocess graph to be used
 // currently there are gaps in the graph, so we have to remap it
@@ -28,7 +26,6 @@ pub fn prep(path: &str) -> Result<Graph, io::Error> {//Result<(Vec<Vec<u32>>, Ha
     let mut new_to_old: HashMap<usize, u32> = HashMap::new(); 
     let mut graph: Vec<Vec<u32>> = vec![Vec::new()]; // our adj list that is going to be our new vec<vec<u32>> that has our graph
     let mut counter = 0; // counter that becomes our values each time
-    let mut edges: Vec<(usize, usize)> = Vec::new(); 
     for line in lines {
         // unwrap and handle errors
         let line = line?;
@@ -67,9 +64,6 @@ pub fn prep(path: &str) -> Result<Graph, io::Error> {//Result<(Vec<Vec<u32>>, Ha
         let new_from = old_to_new[&from]; 
         let new_to = old_to_new[&to] as u32;
 
-        edges.push((new_from, new_to as usize)); 
-
-
         // resize our graph so we can do this all in one for loop 
         while graph.len() <= new_from {
             graph.push(Vec::new()); 
@@ -84,7 +78,6 @@ pub fn prep(path: &str) -> Result<Graph, io::Error> {//Result<(Vec<Vec<u32>>, Ha
         nodes: nodes,
         old_to_new: old_to_new,
         new_to_old: new_to_old,
-        edges: edges,
     })
 }
 
