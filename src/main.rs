@@ -12,8 +12,9 @@ mod shortest_path;
 use std::clone::Clone; 
 
 use crate::reader::Graph; 
+
 fn parallel_closeness_runner(graph: Vec<Vec<u32>>) -> Vec<(u32, f64)> {
-    // this is the code that I ran to intiially calculate the inverse closeness centrality 
+    // this is the code that I ran to initially calculate the inverse closeness centrality 
     // (I will find the normally defined closeness by taking the inverse later)
     // took more than four hours 
     // it is commented out of main, so that everything else can run 
@@ -29,7 +30,6 @@ fn parallel_closeness_runner(graph: Vec<Vec<u32>>) -> Vec<(u32, f64)> {
    }
    returner
 }
-
 fn main() {
     let graph = reader::prep("roadNet-CA.txt").unwrap();
 
@@ -49,6 +49,7 @@ fn main() {
     let smallest_cc: f64 = storage.clone().0[length -1].1; 
 
     // making our visualization for avg path length, as I find it more compelling and interesting to visualize
+    // average path length than closeness centrality 
     visualization::plotter(avg_path_length, &smallest_apl, &1000, "visualization_apl.png");
 
     let nodes = graph.graph.len(); 
@@ -57,8 +58,34 @@ fn main() {
     let start = 0; 
     let end = (graph.graph.len() -1) as u32; 
 
+    // finding the shortest path between the start and end node
     let shortest_total = shortest_path::shortest_path(&graph.graph, start, end).unwrap(); 
-    println!("This is the shortest path between {} and {}, which is {}", &start, &end, &shortest_total); 
+    println!("This is the shortest path between {} and {}, is {}", &start, &end, &shortest_total); 
+
+    let mean_cc: f64 = closeness_centrality.iter().map(|(_, v)| v).sum::<f64>() / closeness_centrality.len() as f64;
+    println!("mean closeness centrality: {:.8}", mean_cc);
+
+
+    // outliers are inflating our mean 
+    // so we want to filter them out
+    // use a filter, and then a collect to filter out the values that are greater than zero
+    // I kept them in my average path length because it was good to visualize, and they were so small 
+    // that they did not much affect the mean
+    // but because they are inverses, when that wasn't a problem, now it is for closeness centrality 
+
+    // using past filter function to implement
+    let filtered_cc: Vec<f64> = closeness_centrality.iter()
+    .map(|(_, v)| *v)
+    .filter(|v| *v < 1.0) 
+    .collect();
+
+    let mean_cc: f64 = filtered_cc.iter().sum::<f64>() / filtered_cc.len() as f64;
+    println!("filter mean closeness centrality, where nodes are greater than zero: {:.8}", mean_cc);
+    println!("This is the amount of outliers that we have in our dataset! {}", nodes - filtered_cc.len())
+
+
+
+
 
 }
 
